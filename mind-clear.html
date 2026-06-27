@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صفِّ ذهنك</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Amiri:ital@0;1&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card: #1c2330;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent-warm: #d29922;
+    --accent-green: #3fb950;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(88,166,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift {
+    from { transform: translate(0, 0); }
+    to { transform: translate(-40px, 30px); }
+  }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+
+  /* HOME */
+  #home {
+    text-align: center;
+    gap: 32px;
+  }
+
+  .home-icon {
+    font-size: 64px;
+    animation: pulse-soft 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.06); opacity: 0.85; }
+  }
+
+  .home-title {
+    font-family: 'Amiri', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .home-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 320px;
+    line-height: 1.8;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    background: #1f2937;
+    transform: translateY(-2px);
+  }
+
+  .card-icon { font-size: 30px; margin-bottom: 8px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .card-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* BACK BTN */
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    transition: all 0.2s;
+    z-index: 99;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* BREATH SCREEN */
+  #breath { gap: 40px; text-align: center; }
+
+  .breath-title { font-size: 22px; font-weight: 600; }
+  .breath-sub { font-size: 13px; color: var(--text-muted); }
+
+  .breath-circle-wrap {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .breath-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    opacity: 0.3;
+  }
+
+  .breath-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #58a6ff33, #58a6ff11);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    transition: transform 0.1s;
+  }
+
+  .breath-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .breath-count {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .breath-phase { font-size: 12px; color: var(--text-muted); }
+
+  .breath-progress {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .breath-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .breath-dot.done { background: var(--accent); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0d1117;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #79b8ff; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* DUMP SCREEN */
+  #dump { gap: 24px; align-items: stretch; max-width: 520px; width: 100%; }
+
+  .dump-header { text-align: center; }
+  .dump-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .dump-sub { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  .dump-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dump-prompt {
+    font-size: 13px;
+    color: var(--accent-warm);
+    font-weight: 600;
+  }
+
+  .dump-textarea {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    resize: none;
+    outline: none;
+    line-height: 1.8;
+    min-height: 120px;
+  }
+
+  .dump-textarea::placeholder { color: var(--text-muted); }
+
+  .dump-timer {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: left;
+  }
+
+  .dump-actions { display: flex; gap: 12px; }
+
+  .btn-clear {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-clear:hover { border-color: #f85149; color: #f85149; }
+
+  .dump-done {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    display: none;
+    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+  }
+  .dump-done.show { display: flex; }
+  .done-icon { font-size: 36px; }
+  .done-text { font-size: 15px; color: var(--text-muted); line-height: 1.7; }
+
+  /* FOCUS SCREEN */
+  #focus { gap: 32px; text-align: center; max-width: 440px; }
+
+  .focus-title { font-size: 22px; font-weight: 600; }
+  .focus-instruction { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+
+  .focus-timer-wrap {
+    position: relative;
+    width: 200px;
+    height: 200px;
+  }
+
+  .focus-svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+
+  .focus-track {
+    fill: none;
+    stroke: var(--card);
+    stroke-width: 6;
+  }
+
+  .focus-bar {
+    fill: none;
+    stroke: var(--accent-green);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 565;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .focus-inner {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .focus-time-display {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .focus-time-label { font-size: 12px; color: var(--text-muted); }
+
+  .focus-task-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    width: 100%;
+  }
+
+  .focus-task-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+
+  .focus-task-input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    outline: none;
+    width: 100%;
+    text-align: right;
+  }
+
+  .focus-task-input::placeholder { color: var(--border); }
+
+  /* AFFIRMATION SCREEN */
+  #affirm { gap: 32px; text-align: center; max-width: 400px; }
+  .affirm-title { font-size: 22px; font-weight: 600; }
+
+  .affirm-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .affirm-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(88,166,255,0.1), transparent);
+  }
+
+  .affirm-quote {
+    font-family: 'Amiri', serif;
+    font-size: 22px;
+    line-height: 1.9;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .affirm-source {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .affirm-category {
+    display: inline-block;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(88,166,255,0.1);
+    border: 1px solid rgba(88,166,255,0.2);
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .affirm-btns { display: flex; gap: 12px; justify-content: center; }
+
+  .btn-next {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-next:hover { border-color: var(--accent); color: var(--accent); }
+
+  .affirm-counter { font-size: 12px; color: var(--text-muted); }
+
+  /* Complete screen */
+  #complete { gap: 24px; text-align: center; }
+  .complete-icon { font-size: 64px; }
+  .complete-title { font-size: 28px; font-weight: 700; }
+  .complete-sub { font-size: 14px; color: var(--text-muted); line-height: 1.8; max-width: 320px; }
+
+  @media (max-width: 480px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .home-title { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-icon">🧘</div>
+  <div>
+    <div class="home-title">صفِّ ذهنك</div>
+  </div>
+  <div class="home-sub">قبل أن تبدأ — خذ دقيقتين لتفريغ الذهن وتجهيز نفسك للتركيز.</div>
+  <div class="cards-grid">
+    <div class="card" onclick="showScreen('breath')">
+      <div class="card-icon">💨</div>
+      <div class="card-title">تنفس واعٍ</div>
+      <div class="card-sub">4-7-8 لتهدئة الجهاز العصبي</div>
+    </div>
+    <div class="card" onclick="showScreen('dump')">
+      <div class="card-icon">🗑️</div>
+      <div class="card-title">تفريغ الأفكار</div>
+      <div class="card-sub">اكتب كل شيء في رأسك</div>
+    </div>
+    <div class="card" onclick="showScreen('affirm')">
+      <div class="card-icon">✨</div>
+      <div class="card-title">تأملات وأفكار</div>
+      <div class="card-sub">دفعة ذهنية قبل البدء</div>
+    </div>
+    <div class="card" onclick="showScreen('focus')">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">نية الجلسة</div>
+      <div class="card-sub">حدد هدفك لـ 25 دقيقة</div>
+    </div>
+  </div>
+</div>
+
+<!-- BACK BTN -->
+<button class="back-btn" id="backBtn" style="display:none" onclick="showScreen('home')">← رجوع</button>
+
+<!-- BREATH -->
+<div id="breath" class="screen">
+  <div class="breath-title">تنفس 4-7-8</div>
+  <div class="breath-sub">هذا النمط يهدئ الجهاز العصبي خلال دقيقتين</div>
+  <div class="breath-circle-wrap">
+    <div class="breath-ring" id="breathRing"></div>
+    <div class="breath-circle" id="breathCircle">
+      <div class="breath-label" id="breathLabel">جاهز؟</div>
+      <div class="breath-count" id="breathCount">—</div>
+      <div class="breath-phase" id="breathPhase">اضغط ابدأ</div>
+    </div>
+  </div>
+  <div class="breath-progress" id="breathDots"></div>
+  <div id="breathCompleteMsg" style="display:none; color: var(--accent-green); font-size: 15px; font-weight: 600;">✓ ممتاز! ذهنك أهدأ الآن.</div>
+  <button class="btn-primary" id="breathBtn" onclick="startBreath()">ابدأ</button>
+</div>
+
+<!-- DUMP -->
+<div id="dump" class="screen">
+  <div class="dump-header">
+    <div class="dump-title">فرّغ ذهنك</div>
+    <div class="dump-sub">اكتب كل ما يدور في رأسك — مخاوف، مهام، أفكار عشوائية.<br>الهدف هو إخراجها من رأسك للورقة.</div>
+  </div>
+  <div class="dump-box" id="dumpBox">
+    <div class="dump-prompt">💭 ما الذي يشغل بالك الآن؟</div>
+    <textarea class="dump-textarea" id="dumpText" placeholder="اكتب بحرية... لا يراه أحد" rows="6"></textarea>
+    <div class="dump-timer" id="dumpTimer">⏱ لديك 3 دقائق</div>
+  </div>
+  <div class="dump-actions">
+    <button class="btn-clear" onclick="clearDump()">مسح والبدء من جديد</button>
+    <button class="btn-primary" onclick="finishDump()">فرّغت رأسي ✓</button>
+  </div>
+  <div class="dump-done" id="dumpDone">
+    <div class="done-icon">🗃️</div>
+    <div class="done-text">خبيّأناها بعيداً عن رأسك.<br>الآن رأسك خالٍ وجاهز للتركيز.</div>
+    <button class="btn-primary" onclick="showScreen('home')">العودة للقائمة</button>
+  </div>
+</div>
+
+<!-- FOCUS INTENT -->
+<div id="focus" class="screen">
+  <div class="focus-title">🎯 نية جلسة التركيز</div>
+  <div class="focus-instruction">حدد شيئاً واحداً فقط ستنجزه في الـ 25 دقيقة القادمة.</div>
+  <div class="focus-task-wrap">
+    <div class="focus-task-label">📌 هدفي في هذه الجلسة:</div>
+    <input class="focus-task-input" id="focusTask" placeholder="مثال: أكمل حل 3 تمارين من الفصل الرابع..." />
+  </div>
+  <div class="focus-timer-wrap">
+    <svg class="focus-svg" width="200" height="200" viewBox="0 0 200 200">
+      <circle class="focus-track" cx="100" cy="100" r="90"/>
+      <circle class="focus-bar" id="focusBar" cx="100" cy="100" r="90"/>
+    </svg>
+    <div class="focus-inner">
+      <div class="focus-time-display" id="focusTimeDisplay">25:00</div>
+      <div class="focus-time-label">دقيقة تركيز</div>
+    </div>
+  </div>
+  <button class="btn-primary" id="focusBtn" onclick="toggleFocus()">ابدأ الجلسة</button>
+</div>
+
+<!-- AFFIRMATIONS -->
+<div id="affirm" class="screen">
+  <div class="affirm-title">✨ دفعة ذهنية</div>
+  <div class="affirm-category" id="affirmCat">تحفيز</div>
+  <div class="affirm-card">
+    <div class="affirm-quote" id="affirmQuote"></div>
+    <div class="affirm-source" id="affirmSource"></div>
+  </div>
+  <div class="affirm-counter" id="affirmCounter">1 / 8</div>
+  <div class="affirm-btns">
+    <button class="btn-next" onclick="prevAffirm()">السابق</button>
+    <button class="btn-next" onclick="nextAffirm()">التالي →</button>
+  </div>
+  <button class="btn-primary" onclick="showScreen('home')" style="margin-top:8px">جاهز للدراسة ✓</button>
+</div>
+
+<script>
+// ---- Navigation ----
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('backBtn').style.display = id === 'home' ? 'none' : 'block';
+  if (id === 'breath') resetBreath();
+  if (id === 'dump') resetDump();
+  if (id === 'affirm') renderAffirm();
+  if (id === 'focus') resetFocus();
+}
+
+// ---- BREATH (4-7-8) ----
+const breathPhases = [
+  { label: 'شهيق', duration: 4, color: '#58a6ff' },
+  { label: 'احتباس', duration: 7, color: '#d29922' },
+  { label: 'زفير', duration: 8, color: '#3fb950' }
+];
+const totalCycles = 4;
+let breathInterval = null, breathPhaseIdx = 0, breathCycle = 0, breathTick = 0, breathRunning = false;
+
+function resetBreath() {
+  clearInterval(breathInterval);
+  breathRunning = false;
+  breathPhaseIdx = 0; breathCycle = 0; breathTick = 0;
+  document.getElementById('breathLabel').textContent = 'جاهز؟';
+  document.getElementById('breathCount').textContent = '—';
+  document.getElementById('breathPhase').textContent = 'اضغط ابدأ';
+  document.getElementById('breathBtn').textContent = 'ابدأ';
+  document.getElementById('breathBtn').disabled = false;
+  document.getElementById('breathCompleteMsg').style.display = 'none';
+  renderDots();
+  setBreathColor('#58a6ff');
+  document.getElementById('breathCircle').style.transform = 'scale(1)';
+}
+
+function renderDots() {
+  const c = document.getElementById('breathDots');
+  c.innerHTML = '';
+  for (let i = 0; i < totalCycles; i++) {
+    const d = document.createElement('div');
+    d.className = 'breath-dot' + (i < breathCycle ? ' done' : '');
+    c.appendChild(d);
+  }
+}
+
+function setBreathColor(c) {
+  document.getElementById('breathCircle').style.borderColor = c;
+  document.getElementById('breathLabel').style.color = c;
+  document.getElementById('breathRing').style.borderColor = c;
+}
+
+function startBreath() {
+  if (breathRunning) return;
+  breathRunning = true;
+  document.getElementById('breathBtn').disabled = true;
+  runBreathPhase();
+}
+
+function runBreathPhase() {
+  if (breathCycle >= totalCycles) {
+    document.getElementById('breathLabel').textContent = 'أحسنت!';
+    document.getElementById('breathCount').textContent = '✓';
+    document.getElementById('breathPhase').textContent = 'مكتمل';
+    document.getElementById('breathCompleteMsg').style.display = 'block';
+    document.getElementById('breathCircle').style.transform = 'scale(1)';
+    return;
+  }
+  const phase = breathPhases[breathPhaseIdx];
+  breathTick = phase.duration;
+  setBreathColor(phase.color);
+  document.getElementById('breathLabel').textContent = phase.label;
+  document.getElementById('breathPhase').textContent = breathCycle + 1 + ' / ' + totalCycles;
+  if (breathPhaseIdx === 0) document.getElementById('breathCircle').style.transform = 'scale(1.12)';
+  else if (breathPhaseIdx === 2) document.getElementById('breathCircle').style.transform = 'scale(0.9)';
+  else document.getElementById('breathCircle').style.transform = 'scale(1)';
+
+  clearInterval(breathInterval);
+  document.getElementById('breathCount').textContent = breathTick;
+  breathInterval = setInterval(() => {
+    breathTick--;
+    document.getElementById('breathCount').textContent = breathTick;
+    if (breathTick <= 0) {
+      clearInterval(breathInterval);
+      breathPhaseIdx++;
+      if (breathPhaseIdx >= breathPhases.length) { breathPhaseIdx = 0; breathCycle++; renderDots(); }
+      setTimeout(runBreathPhase, 300);
+    }
+  }, 1000);
+}
+
+// ---- DUMP ----
+let dumpTimerInterval = null, dumpSeconds = 180;
+
+function resetDump() {
+  clearInterval(dumpTimerInterval);
+  dumpSeconds = 180;
+  document.getElementById('dumpText').value = '';
+  document.getElementById('dumpTimer').textContent = '⏱ لديك 3 دقائق';
+  document.getElementById('dumpDone').classList.remove('show');
+  document.getElementById('dumpBox').style.display = 'flex';
+  startDumpTimer();
+}
+
+function startDumpTimer() {
+  dumpTimerInterval = setInterval(() => {
+    dumpSeconds--;
+    const m = Math.floor(dumpSeconds / 60), s = dumpSeconds % 60;
+    document.getElementById('dumpTimer').textContent = `⏱ ${m}:${s.toString().padStart(2,'0')} متبقية`;
+    if (dumpSeconds <= 0) { clearInterval(dumpTimerInterval); finishDump(); }
+  }, 1000);
+}
+
+function clearDump() {
+  document.getElementById('dumpText').value = '';
+}
+
+function finishDump() {
+  clearInterval(dumpTimerInterval);
+  document.getElementById('dumpText').value = '';
+  document.getElementById('dumpBox').style.display = 'none';
+  document.getElementById('dumpDone').classList.add('show');
+}
+
+// ---- FOCUS TIMER ----
+let focusInterval = null, focusRunning = false, focusRemaining = 25 * 60, focusTotal = 25 * 60;
+
+function resetFocus() {
+  clearInterval(focusInterval);
+  focusRunning = false;
+  focusRemaining = focusTotal = 25 * 60;
+  document.getElementById('focusTimeDisplay').textContent = '25:00';
+  document.getElementById('focusBtn').textContent = 'ابدأ الجلسة';
+  document.getElementById('focusBar').style.strokeDashoffset = '0';
+}
+
+function toggleFocus() {
+  if (!focusRunning) {
+    focusRunning = true;
+    document.getElementById('focusBtn').textContent = 'إيقاف مؤقت';
+    focusInterval = setInterval(tickFocus, 1000);
+  } else {
+    focusRunning = false;
+    clearInterval(focusInterval);
+    document.getElementById('focusBtn').textContent = 'استمرار';
+  }
+}
+
+function tickFocus() {
+  focusRemaining--;
+  const m = Math.floor(focusRemaining / 60), s = focusRemaining % 60;
+  document.getElementById('focusTimeDisplay').textContent = m + ':' + s.toString().padStart(2,'0');
+  const progress = 1 - focusRemaining / focusTotal;
+  document.getElementById('focusBar').style.strokeDashoffset = (565 * progress).toString();
+  if (focusRemaining <= 0) {
+    clearInterval(focusInterval);
+    document.getElementById('focusBtn').textContent = '🎉 أنجزت الجلسة!';
+    document.getElementById('focusBtn').disabled = true;
+  }
+}
+
+// ---- AFFIRMATIONS ----
+const affirmations = [
+  { text: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', source: 'سورة الشرح — آية 6', cat: 'قرآن كريم' },
+  { text: 'العقل الهادئ قادر على التعلم أكثر من ألف ساعة من الدراسة المتوترة.', source: '', cat: 'تركيز' },
+  { text: 'لا تقلق بشأن ما لم تنجزه بعد. ركّز على الخطوة التالية فقط.', source: '', cat: 'حاضر' },
+  { text: 'طَلَبُ العِلمِ فَريضَةٌ عَلى كُلِّ مُسلِم', source: 'حديث شريف', cat: 'نية' },
+  { text: 'كل جلسة دراسة — مهما كانت صغيرة — هي استثمار في نفسك لا يُسرَق.', source: '', cat: 'تحفيز' },
+  { text: 'التعب الذي تشعر به الآن هو ثمن النجاح الذي تريده غداً.', source: '', cat: 'إصرار' },
+  { text: 'لا تقارن تقدمك بتقدم غيرك. أنت في سباق مع من كنت عليه بالأمس.', source: '', cat: 'ثقة' },
+  { text: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', source: 'سورة طه — آية 114', cat: 'قرآن كريم' },
+];
+
+let affirmIdx = 0;
+
+function renderAffirm() {
+  const a = affirmations[affirmIdx];
+  document.getElementById('affirmQuote').textContent = a.text;
+  document.getElementById('affirmSource').textContent = a.source;
+  document.getElementById('affirmCat').textContent = a.cat;
+  document.getElementById('affirmCounter').textContent = (affirmIdx + 1) + ' / ' + affirmations.length;
+}
+
+function nextAffirm() {
+  affirmIdx = (affirmIdx + 1) % affirmations.length;
+  renderAffirm();
+}
+
+function prevAffirm() {
+  affirmIdx = (affirmIdx - 1 + affirmations.length) % affirmations.length;
+  renderAffirm();
+}
+
+// init
+renderAffirm();
+</script>
+</body>
+</html>
